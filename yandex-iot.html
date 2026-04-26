@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Открыть «Дом с Алисой»</title>
+  <title>Открываю «Дом с Алисой»…</title>
   <link rel="canonical" href="https://muzeric.github.io/deep-link-redirects/yandex-iot.html">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,7 +47,7 @@
     📷 Открыть<br>«Дом с Алисой»
   </a>
 
-  <p class="hint">Тапни в любое место экрана — Safari спросит подтверждение и откроет приложение.</p>
+  <p class="hint">Если приложение не открылось автоматически — тапни кнопку выше.</p>
 
   <p class="small">
     Не установлено? <a href="https://apps.apple.com/app/id1582810683">App Store</a> ·
@@ -55,13 +55,21 @@
   </p>
 
   <script>
-    // Любой тап в body запускает приложение (если не было прямого тапа в кнопку).
-    // Это user gesture, iOS Safari разрешает custom-схему.
-    document.body.addEventListener('click', function (e) {
-      // Не дублируем если кликнули в App Store / Play или в основную кнопку
-      if (e.target.closest('a')) return;
-      window.location.href = 'yandexiot://';
-    });
+    // На загрузке пробуем открыть приложение через прямой redirect.
+    // Это работало в первой версии. Без iframe (он не работает в iOS Safari)
+    // и без fallback на App Store (он перебивал диалог подтверждения).
+    (function () {
+      var SCHEME = 'yandexiot://';
+      function tryOpen() {
+        // setTimeout 50ms — даём странице полностью отрисоваться,
+        // иначе на некоторых iOS Safari игнорирует.
+        setTimeout(function () {
+          window.location.href = SCHEME;
+        }, 50);
+      }
+      if (document.readyState === 'complete') tryOpen();
+      else window.addEventListener('load', tryOpen);
+    })();
   </script>
 </body>
 </html>
