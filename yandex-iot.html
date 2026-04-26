@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Открываю «Дом с Алисой»…</title>
+  <link rel="canonical" href="https://muzeric.github.io/deep-link-redirects/yandex-iot.html">
+  <style>
+    body {
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 480px;
+      margin: 4rem auto 2rem;
+      padding: 0 1.5rem;
+      background: #fafafa;
+      color: #222;
+      text-align: center;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 0.4em; }
+    p  { margin: 0.6em 0; color: #555; }
+    .btn {
+      display: inline-block;
+      margin-top: 1.6em;
+      padding: 0.9em 1.6em;
+      border-radius: 12px;
+      background: #ffcc00;
+      color: #000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .btn.secondary { background: #007aff; color: #fff; margin-left: 0.6em; }
+    .small { font-size: 0.85em; color: #888; margin-top: 1.6em; }
+  </style>
+</head>
+<body>
+  <h1>📷 Открываю «Дом с Алисой»…</h1>
+  <p>Если приложение не открылось автоматически — нажми кнопку ниже.</p>
+
+  <a class="btn" id="open-app" href="yandexiot://">📱 Открыть приложение</a>
+  <a class="btn secondary" href="https://apps.apple.com/app/id1582810683">App Store</a>
+
+  <p class="small">
+    Если ты пришёл сюда из Telegram и кнопка не работает — открой эту страницу
+    в Safari (поделиться → «Открыть в Safari»), оттуда схема сработает.
+  </p>
+
+  <script>
+    // Сразу при загрузке пробуем открыть приложение через iframe-trick
+    // (более тихий метод на iOS чем window.location, не показывает ошибку)
+    (function () {
+      var SCHEME = 'yandexiot://';
+      var APPSTORE = 'https://apps.apple.com/app/id1582810683';
+      var FALLBACK_DELAY_MS = 2000;
+
+      // Trigger custom scheme. На iOS это либо откроет приложение,
+      // либо ничего не произойдёт (если приложение не установлено).
+      function tryOpenApp() {
+        // Способ 1: iframe (тише чем location.href, не show error)
+        var ifr = document.createElement('iframe');
+        ifr.style.display = 'none';
+        ifr.src = SCHEME;
+        document.body.appendChild(ifr);
+
+        // Способ 2: для Android и backup — прямой переход.
+        // Откладываем чтобы iframe успел сработать.
+        setTimeout(function () {
+          window.location.href = SCHEME;
+        }, 50);
+
+        // Если через FALLBACK_DELAY_MS страница ещё видна (значит
+        // приложение не открылось) — ведём в App Store.
+        setTimeout(function () {
+          if (!document.hidden) {
+            window.location.href = APPSTORE;
+          }
+        }, FALLBACK_DELAY_MS);
+      }
+
+      // Запускаем после полной загрузки
+      if (document.readyState === 'complete') {
+        tryOpenApp();
+      } else {
+        window.addEventListener('load', tryOpenApp);
+      }
+    })();
+  </script>
+</body>
+</html>
