@@ -44,38 +44,20 @@
   </p>
 
   <script>
-    // Сразу при загрузке пробуем открыть приложение через iframe-trick
-    // (более тихий метод на iOS чем window.location, не показывает ошибку)
+    // Один тихий iframe-trigger custom-схемы на iOS.
+    // НЕТ автоматического fallback на App Store — он перебивает Safari-диалог
+    // подтверждения «Открыть в приложении X?» если user думает дольше 2 сек.
+    // Если приложение не открылось — на странице есть ручные кнопки.
     (function () {
       var SCHEME = 'yandexiot://';
-      var APPSTORE = 'https://apps.apple.com/app/id1582810683';
-      var FALLBACK_DELAY_MS = 2000;
 
-      // Trigger custom scheme. На iOS это либо откроет приложение,
-      // либо ничего не произойдёт (если приложение не установлено).
       function tryOpenApp() {
-        // Способ 1: iframe (тише чем location.href, не show error)
         var ifr = document.createElement('iframe');
         ifr.style.display = 'none';
         ifr.src = SCHEME;
         document.body.appendChild(ifr);
-
-        // Способ 2: для Android и backup — прямой переход.
-        // Откладываем чтобы iframe успел сработать.
-        setTimeout(function () {
-          window.location.href = SCHEME;
-        }, 50);
-
-        // Если через FALLBACK_DELAY_MS страница ещё видна (значит
-        // приложение не открылось) — ведём в App Store.
-        setTimeout(function () {
-          if (!document.hidden) {
-            window.location.href = APPSTORE;
-          }
-        }, FALLBACK_DELAY_MS);
       }
 
-      // Запускаем после полной загрузки
       if (document.readyState === 'complete') {
         tryOpenApp();
       } else {
